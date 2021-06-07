@@ -3,6 +3,8 @@ import resolve from '@rollup/plugin-node-resolve';
 import pkg from './package.json';
 import autoPreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
+import replace from '@rollup/plugin-replace';
+import { terser } from "rollup-plugin-terser";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -23,5 +25,10 @@ export default {
 		}),
 		typescript({ sourceMap: !production }),
 		resolve(),
+		replace({
+			'process.env.NODE_ENV': production ? '"production"' : '"development"',
+			preventAssignment: true,
+		}),
+		production && terser()
 	]
 };

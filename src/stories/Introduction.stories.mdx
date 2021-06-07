@@ -1,6 +1,10 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Introduction" />
+
 # Introduction
 
-An easy-to-use popover component for Svelte 3 with out-of-the-box functionality.
+An easy, component-driven popover component for Svelte 3 with out-of-the-box event listeners.
 
 This component is very flexible, while providing a lot of out-of-the-box functionality:
 
@@ -10,7 +14,7 @@ This component is very flexible, while providing a lot of out-of-the-box functio
 3. Flexible. The `isOpen` parameter lets you build the interaction exactly how you'd wish
 4. Extensible. This component uses [Popper](https://popper.js.org/) underneath, and exposes the popperOptions to you.
 
-This style makes it easy to build tooltips, context menus, and dropdown components with little extra work. A few of these scenarios are shown in the [examples]() in the [docs]().
+In general, this component is nice for building your respective tooltip, dropdown, or other solutions in your Svelte projects.
 
 # Install
 
@@ -20,7 +24,12 @@ npm install svelte-easy-popover
 
 ## Usage
 
-This is an example of an easy popover with a transition, placed above the button, spaced 10px away.
+For the most detailed information, view the [argument documentation](?path=/docs/examples-popover--tooltip-style-appearing-above-the-reference-element)
+to view more detailed information on how to use the component,
+or view the [examples](?path=/story/examples-popover--tooltip-style-appearing-above-the-reference-element).
+
+This is an example of an easy popover with a transition, placed above the button,
+spaced 10px away.
 
 ```svelte
 <script>
@@ -36,24 +45,11 @@ This is an example of an easy popover with a transition, placed above the button
   placement="top"
   spaceAway={10}
 >
-    <div
-        class="popover-contents"
-        transition:fade={{ duration: 250 }}
-    >
+    <div transition:fade={{ duration: 250 }}>
         I'm a popover!
     </div>
 </Popover>
-
-<style>
-    .popover-contents {
-        border: 1px solid black;
-        border-radius: 4px;
-        padding: 8px;
-    }
-</style>
 ```
-
-View the [argument documentation](?path=/docs/examples-popover--tooltip-style-appearing-above-the-reference-element) to view more detailed information on how to use the component, or view the [examples](?path=/story/examples-popover--tooltip-style-appearing-above-the-reference-element) for different ways to use it.
 
 ## Popper
 
@@ -84,21 +80,4 @@ state if so desired.
         I'm a popover!
     </div>
 </Popover>
-```
-
-# Development
-
-This project is easy to get running locally.
-For development, it is using the Svelte Storybook integration. Read more [here](https://storybook.js.org/docs/svelte/get-started/introduction).
-
-1. Install dependencies
-
-```
-npm install
-```
-
-2. Launch Storybook. By default it lauches at http://localhost:6006
-
-```
-npm run storybook
 ```

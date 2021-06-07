@@ -12,7 +12,8 @@
     "build": "rollup -c",
     "prepublishOnly": "npm run build",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "deploy-storybook": "storybook-to-ghpages"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
@@ -23,6 +24,7 @@
     "@storybook/addon-essentials": "^6.2.9",
     "@storybook/addon-links": "^6.2.9",
     "@storybook/addon-svelte-csf": "^1.0.0",
+    "@storybook/storybook-deployer": "^2.8.8",
     "@storybook/svelte": "^6.2.9",
     "@tsconfig/svelte": "^2.0.1",
     "babel-loader": "^8.2.2",

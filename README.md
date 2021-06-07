@@ -2,6 +2,8 @@
 
 An easy-to-use popover component for Svelte 3 with out-of-the-box functionality.
 
+View the [Docs](https://jguze.github.io/svelte-easy-popover/) and [detailed usage](https://jguze.github.io/svelte-easy-popover/?path=/docs/examples-popover--tooltip-style-appearing-above-the-reference-element).
+
 This component is very flexible, while providing a lot of out-of-the-box functionality:
 
 1. Built in click, hover, and focus events to trigger showing the popover
@@ -9,8 +11,6 @@ This component is very flexible, while providing a lot of out-of-the-box functio
    to add your own transitions and styling to the popover within the normal style-block and transition directive.
 3. Flexible. The `isOpen` parameter lets you build the interaction exactly how you'd wish
 4. Extensible. This component uses [Popper](https://popper.js.org/) underneath, and exposes the popperOptions to you.
-
-This style makes it easy to build tooltips, context menus, and dropdown components with little extra work. A few of these scenarios are shown in the [examples]() in the [docs]().
 
 # Install
 

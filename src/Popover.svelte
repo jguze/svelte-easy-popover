@@ -25,7 +25,9 @@
 </script>
 
 <script lang="ts">
-  import { createPopper } from "@popperjs/core";
+  // Popper requires you do replace the process.env.NODE_ENV variable. I think this is
+  // unnecessary to handle: https://github.com/popperjs/popper-core/issues/933
+  import { createPopper } from "@popperjs/core/dist/esm/popper";
   import { createEventDispatcher, onDestroy } from "svelte";
 
   /**
@@ -81,6 +83,31 @@
   export let remainOpenOnPopoverFocus: boolean = true;
 
   /**
+   * If using any `triggerEvents`, force close the popover when hitting espape.
+   */
+  export let closeOnEscape: boolean = false;
+
+  /**
+   * If the `triggerEvents` contains `click`, then force close the popover when you click outside the reference and popover.
+   */
+  export let closeOnClickAway: boolean = false;
+
+  /**
+   * If you have multiple trigger events including `click`, such as hover and click, you may not want clicks while the popover
+   * is animating in to cause it to close, as that is bad UX. This is a buffer window to wait while your
+   * popover animates in.
+   */
+  export let ignoreClickWhileOpeningBuffer: number = 300;
+
+  /**
+   * This is a special case when hover is enabled. Opening the context menu (right-click) also triggers
+   * the blur handler in many browsers. This is most apparent in Firefox.
+   * A workaround is to just keep it open when we see the context menu open. However,
+   * there's no reliable way to know when it gets removed, and therefore you should be wary of using this.
+   */
+  export let handleContextMenuForHover: boolean = false;
+
+  /**
    * The placement of the popover with respect to the reference element.
    * This uses the Popper `placement` option, which is documented
    * [here](https://popper.js.org/docs/v2/constructors//#placement)
@@ -116,6 +143,7 @@
   let isReferenceFocused: boolean = false;
   let isReferenceHovered: boolean = false;
   let isPopoverFocused: boolean = false;
+  let isContextMenuOpen: boolean = false;
 
   let listeners: {
     element: Element;
@@ -127,6 +155,9 @@
 
   const dispatch = createEventDispatcher<{ change: PopoverChangeDetail }>();
 
+  let visibleTimer: ReturnType<typeof setTimeout>;
+  let visibleTimerCompleted: boolean = false;
+
   $: {
     const oldState = isPopoverVisible;
     isPopoverVisible =
@@ -136,7 +167,20 @@
           isReferenceClicked ||
           isReferenceFocused ||
           isReferenceHovered ||
-          isPopoverFocused;
+          isPopoverFocused ||
+          isContextMenuOpen;
+
+    // If you're using click events with hovers, this buffer helps ensure their UX
+    // makes sense. If you click it while it's opening, it won't close it immediately.
+    if (isPopoverVisible) {
+      visibleTimer = setTimeout(
+        () => (visibleTimerCompleted = true),
+        ignoreClickWhileOpeningBuffer
+      );
+    } else {
+      clearTimeout(visibleTimer);
+      visibleTimerCompleted = false;
+    }
 
     if (oldState !== isPopoverVisible) {
       dispatch("change", {
@@ -188,6 +232,10 @@
       if (triggerEventSet.has("hover") && remainOpenOnPopoverHover) {
         addListener(popoverElement, "mouseenter", onPopoverHover);
         addListener(popoverElement, "mouseleave", onPopoverUnhover);
+
+        if (handleContextMenuForHover) {
+          addListener(popoverElement, "contextmenu", onPopoverContextMenu);
+        }
       }
 
       if (triggerEventSet.has("focus") && remainOpenOnPopoverFocus) {
@@ -219,6 +267,49 @@
     );
   }
 
+  function escapeListener(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      forceClose();
+    }
+  }
+
+  function closeIfNotFocused() {
+    if (
+      !referenceElement?.contains(document.activeElement) &&
+      !popoverElement?.contains(document.activeElement)
+    ) {
+      forceClose();
+    }
+  }
+
+  function closeOnClickAwayListener(_: MouseEvent) {
+    // Firefox doesn't focus on buttons on some browsers
+    if (_.currentTarget !== referenceElement) {
+      closeIfNotFocused();
+    }
+  }
+
+  $: {
+    if (isPopoverVisible && closeOnEscape && window) {
+      document.addEventListener("keydown", escapeListener);
+    } else {
+      document.removeEventListener("keydown", escapeListener);
+    }
+  }
+
+  $: {
+    if (
+      isPopoverVisible &&
+      closeOnClickAway &&
+      triggerEventSet.has("click") &&
+      window
+    ) {
+      document.addEventListener("click", closeOnClickAwayListener);
+    } else {
+      document.removeEventListener("click", closeOnClickAwayListener);
+    }
+  }
+
   $: getOptions = function () {
     return {
       ...popperOptions,
@@ -234,8 +325,32 @@
     };
   };
 
+  function forceClose() {
+    isReferenceClicked = false;
+    isReferenceHovered = false;
+    isReferenceFocused = false;
+    isPopoverHovered = false;
+    isPopoverHovered = false;
+    isContextMenuOpen = false;
+  }
+
+  /**
+   * It's weird if you hover AND have click events. In this case,
+   * we should always close it if you are clicked in and we trigger a disable
+   */
+  function forceCloseIfClickedIn() {
+    if (isPopoverVisible && isReferenceClicked) {
+      forceClose();
+    }
+  }
+
   function onReferenceClick() {
     isReferenceClicked = !isReferenceClicked;
+
+    // Treat it as if the click occured since it has been visible long enough
+    if (!isReferenceClicked || visibleTimerCompleted) {
+      forceClose();
+    }
   }
 
   function onReferenceHover() {
@@ -244,6 +359,7 @@
 
   function onReferenceUnhover() {
     isReferenceHovered = false;
+    forceCloseIfClickedIn();
   }
 
   function onReferenceFocus() {
@@ -252,14 +368,20 @@
 
   function onReferenceBlur() {
     isReferenceFocused = false;
+    forceCloseIfClickedIn();
   }
 
   function onPopoverHover() {
     isPopoverHovered = true;
+
+    if (isContextMenuOpen) {
+      isContextMenuOpen = false;
+    }
   }
 
   function onPopoverUnhover() {
     isPopoverHovered = false;
+    forceCloseIfClickedIn();
   }
 
   function onPopoverFocus() {
@@ -268,6 +390,11 @@
 
   function onPopoverBlur() {
     isPopoverFocused = false;
+    forceCloseIfClickedIn();
+  }
+
+  function onPopoverContextMenu() {
+    isContextMenuOpen = true;
   }
 
   function removeListeners() {

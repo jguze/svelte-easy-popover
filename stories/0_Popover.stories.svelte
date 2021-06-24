@@ -1,16 +1,14 @@
 <script>
   import { Meta, Template, Story } from "@storybook/addon-svelte-csf";
-  import Popover from "../Popover.svelte";
+  import Popover from "../src/Popover.svelte";
   import { fade } from "svelte/transition";
-  import Chevron from "./story-components/Chevron.svelte";
 
   let referenceElement;
-  let isPopoverOpen;
 
 </script>
 
 <Meta
-  title="Examples/Dropdown"
+  title="Examples/Popover"
   component={Popover}
   argTypes={{
     placement: {
@@ -54,30 +52,55 @@
   }}
 />
 
-Use the popover as a dropdown!
-
-<Template let:args id="BasicDropdown">
+<Template let:args id="TextPopover">
   <button class="popover-trigger" bind:this={referenceElement}>
-    <span>Menu</span>
-    <Chevron direction={isPopoverOpen ? "up" : "down"} />
+    Open popover
   </button>
-  <Popover
-    {...args}
-    {referenceElement}
-    on:change={({ detail: { isOpen } }) => (isPopoverOpen = isOpen)}
+  <Popover {...args} {referenceElement}
+    ><div class="popover-contents" transition:fade={{ duration: 200 }}>
+      This is a popover
+    </div></Popover
   >
-    <ul class="popover-contents" transition:fade={{ duration: 250 }}>
-      <li><a href="https://example.com">Menu Option 1</a></li>
-      <li><a href="https://example.com">Menu Option 2</a></li>
-      <li><a href="https://example.com">Menu Option 3</a></li>
-    </ul>
+</Template>
+
+<Template let:args id="InteractivePopover">
+  <button class="popover-trigger" bind:this={referenceElement}>
+    Open popover
+  </button>
+  <Popover {...args} {referenceElement}
+    ><div
+      class="popover-contents space-between"
+      transition:fade={{ duration: 200 }}
+    >
+      Popover doesn't disappear if focused within
+      <button> Button 1 </button>
+
+      <button> Button 2 </button>
+    </div>
   </Popover>
 </Template>
 
 <Story
-  name="Simple dropdown"
-  template="BasicDropdown"
-  args={{ triggerEvents: ["click"], spaceAway: 10 }}
+  name="Tooltip style appearing above the reference element"
+  args={{ placement: "top", triggerEvents: ["hover"] }}
+  template="TextPopover"
+/>
+
+<Story
+  name="Hover and click with interactive elements in the popover, with clickAway and escape handlers"
+  args={{
+    placement: "bottom",
+    triggerEvents: ["hover", "click"],
+    spaceAway: 20,
+    closeOnEscape: true,
+    closeOnClickAway: true,
+  }}
+  template="InteractivePopover"
+/>
+
+<Story
+  name="Popover with defaults without triggerEvents set"
+  template="TextPopover"
 />
 
 <style>
@@ -102,39 +125,20 @@ Use the popover as a dropdown!
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    font-size: 16px;
   }
 
   .popover-contents {
+    border: 1px solid black;
     border-radius: 4px;
-    border: 1px solid #f5f6f7;
 
-    padding: 16px;
-
-    list-style: none;
-    margin: 0;
-
-    box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.04),
-      0px 6px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04);
-  }
-
-  a {
-    text-decoration: none;
-    color: black;
-  }
-
-  li {
     padding: 8px;
-    border-radius: 4px;
   }
 
-  li:hover {
-    background-color: #f5f6f7;
+  .space-between {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    flex-flow: column;
   }
 
 </style>

@@ -107,6 +107,9 @@
    */
   export let handleContextMenuForHover: boolean = false;
 
+  /** Amount of time to wait before the unhover closes the menu */
+  export let unhoverDelay: number = 50;
+
   /**
    * The placement of the popover with respect to the reference element.
    * This uses the Popper `placement` option, which is documented
@@ -170,19 +173,20 @@
           isPopoverFocused ||
           isContextMenuOpen;
 
-    // If you're using click events with hovers, this buffer helps ensure their UX
-    // makes sense. If you click it while it's opening, it won't close it immediately.
-    if (isPopoverVisible) {
-      visibleTimer = setTimeout(
-        () => (visibleTimerCompleted = true),
-        ignoreClickWhileOpeningBuffer
-      );
-    } else {
-      clearTimeout(visibleTimer);
-      visibleTimerCompleted = false;
-    }
-
     if (oldState !== isPopoverVisible) {
+      console.log("new " + isPopoverVisible);
+      // If you're using click events with hovers, this buffer helps ensure their UX
+      // makes sense. If you click it while it's opening, it won't close it immediately.
+      if (isPopoverVisible) {
+        visibleTimer = setTimeout(
+          () => (visibleTimerCompleted = true),
+          ignoreClickWhileOpeningBuffer
+        );
+      } else {
+        clearTimeout(visibleTimer);
+        visibleTimerCompleted = false;
+      }
+
       dispatch("change", {
         isOpen: isPopoverVisible,
       });
@@ -284,7 +288,10 @@
 
   function closeOnClickAwayListener(_: MouseEvent) {
     // Firefox doesn't focus on buttons on some browsers
-    if (_.currentTarget !== referenceElement) {
+    if (
+      !referenceElement?.contains(_.target as Element) &&
+      !popoverElement?.contains(_.target as Element)
+    ) {
       closeIfNotFocused();
     }
   }
@@ -353,13 +360,23 @@
     }
   }
 
+  let referenceUnhoverTimer: ReturnType<typeof setTimeout>;
+
   function onReferenceHover() {
     isReferenceHovered = true;
+
+    clearTimeout(referenceUnhoverTimer);
+
+    if (isContextMenuOpen) {
+      isContextMenuOpen = false;
+    }
   }
 
   function onReferenceUnhover() {
-    isReferenceHovered = false;
-    forceCloseIfClickedIn();
+    // Ensure we're not wildly flipping between hover and unhover
+    referenceUnhoverTimer = setTimeout(() => {
+      isReferenceHovered = false;
+    }, unhoverDelay);
   }
 
   function onReferenceFocus() {
@@ -371,8 +388,12 @@
     forceCloseIfClickedIn();
   }
 
+  let popoverUnhoverTimer: ReturnType<typeof setTimeout>;
+
   function onPopoverHover() {
     isPopoverHovered = true;
+
+    clearTimeout(popoverUnhoverTimer);
 
     if (isContextMenuOpen) {
       isContextMenuOpen = false;
@@ -380,8 +401,11 @@
   }
 
   function onPopoverUnhover() {
-    isPopoverHovered = false;
-    forceCloseIfClickedIn();
+    // Ensure we're not wildly flipping between hover and unhover
+    popoverUnhoverTimer = setTimeout(() => {
+      isPopoverHovered = false;
+      forceCloseIfClickedIn();
+    }, unhoverDelay);
   }
 
   function onPopoverFocus() {

@@ -21,7 +21,6 @@
   export interface PopoverChangeDetail {
     isOpen: boolean;
   }
-
 </script>
 
 <script lang="ts">
@@ -101,7 +100,7 @@
 
   /**
    * This is a special case when hover is enabled. Opening the context menu (right-click) also triggers
-   * the blur handler in many browsers. This is most apparent in Firefox.
+   * the mouseleave handler in many browsers. This is most apparent in Firefox.
    * A workaround is to just keep it open when we see the context menu open. However,
    * there's no reliable way to know when it gets removed, and therefore you should be wary of using this.
    */
@@ -174,7 +173,6 @@
           isContextMenuOpen;
 
     if (oldState !== isPopoverVisible) {
-      console.log("new " + isPopoverVisible);
       // If you're using click events with hovers, this buffer helps ensure their UX
       // makes sense. If you click it while it's opening, it won't close it immediately.
       if (isPopoverVisible) {
@@ -339,6 +337,7 @@
     isPopoverHovered = false;
     isPopoverHovered = false;
     isContextMenuOpen = false;
+    isPopoverFocused = false;
   }
 
   /**
@@ -376,6 +375,10 @@
     // Ensure we're not wildly flipping between hover and unhover
     referenceUnhoverTimer = setTimeout(() => {
       isReferenceHovered = false;
+
+      if (!isPopoverHovered) {
+        isPopoverFocused = false;
+      }
     }, unhoverDelay);
   }
 
@@ -404,6 +407,10 @@
     // Ensure we're not wildly flipping between hover and unhover
     popoverUnhoverTimer = setTimeout(() => {
       isPopoverHovered = false;
+
+      if (!isReferenceHovered) {
+        isPopoverFocused = false;
+      }
       forceCloseIfClickedIn();
     }, unhoverDelay);
   }
@@ -432,7 +439,6 @@
     destroyInstance();
     removeListeners();
   });
-
 </script>
 
 {#if isPopoverVisible}
@@ -475,5 +481,4 @@
     height: 100%;
     width: var(--popover-space-away);
   }
-
 </style>

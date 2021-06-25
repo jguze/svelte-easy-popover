@@ -6,7 +6,6 @@
 
   let referenceElement;
   let isPopoverOpen;
-
 </script>
 
 <Meta
@@ -57,7 +56,15 @@
 Use the popover as a dropdown!
 
 <Template let:args id="BasicDropdown">
-  <button class="popover-trigger" bind:this={referenceElement}>
+  <button
+    class="popover-trigger"
+    bind:this={referenceElement}
+    on:click={() => {
+      if (args.disableReferenceFocusOnClick) {
+        referenceElement.blur();
+      }
+    }}
+  >
     <span>Menu</span>
     <Chevron direction={isPopoverOpen ? "up" : "down"} />
   </button>
@@ -78,6 +85,16 @@ Use the popover as a dropdown!
   name="Simple dropdown"
   template="BasicDropdown"
   args={{ triggerEvents: ["click"], spaceAway: 10 }}
+/>
+
+<Story
+  name="Hover dropdown with keyboard and touch support"
+  template="BasicDropdown"
+  args={{
+    triggerEvents: ["hover", "focus"],
+    spaceAway: 10,
+    disableReferenceFocusOnClick: true,
+  }}
 />
 
 <style>
@@ -136,5 +153,4 @@ Use the popover as a dropdown!
   li:hover {
     background-color: #f5f6f7;
   }
-
 </style>

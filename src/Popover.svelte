@@ -458,25 +458,25 @@
     position: absolute;
   }
 
-  .popover:global([data-popper-placement^="top"]) .popover-hover-bridge {
+  :global([data-popper-placement^="top"]).popover .popover-hover-bridge {
     bottom: calc(0px - var(--popover-space-away));
     width: 100%;
     height: var(--popover-space-away);
   }
 
-  .popover:global([data-popper-placement^="bottom"]) .popover-hover-bridge {
+  :global([data-popper-placement^="bottom"]).popover .popover-hover-bridge {
     top: calc(0px - var(--popover-space-away));
     width: 100%;
     height: var(--popover-space-away);
   }
 
-  .popover:global([data-popper-placement^="left"]) .popover-hover-bridge {
+  :global([data-popper-placement^="left"]).popover .popover-hover-bridge {
     right: calc(0px - var(--popover-space-away));
     height: 100%;
     width: var(--popover-space-away);
   }
 
-  .popover:global([data-popper-placement^="right"]) .popover-hover-bridge {
+  :global([data-popper-placement^="right"]).popover .popover-hover-bridge {
     left: calc(0px - var(--popover-space-away));
     height: 100%;
     width: var(--popover-space-away);

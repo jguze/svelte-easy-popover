@@ -442,7 +442,7 @@
 </script>
 
 {#if isPopoverVisible}
-  <div class="popover" bind:this={popoverElement}>
+  <div class="svelte-easy-popover" bind:this={popoverElement}>
     {#if triggerEventSet.has("hover") && spaceAway > 0}
       <div
         class="popover-hover-bridge"
@@ -458,25 +458,29 @@
     position: absolute;
   }
 
-  :global([data-popper-placement^="top"]).popover .popover-hover-bridge {
+  :global([data-popper-placement^="top"]).svelte-easy-popover
+    .popover-hover-bridge {
     bottom: calc(0px - var(--popover-space-away));
     width: 100%;
     height: var(--popover-space-away);
   }
 
-  :global([data-popper-placement^="bottom"]).popover .popover-hover-bridge {
+  :global([data-popper-placement^="bottom"]).svelte-easy-popover
+    .popover-hover-bridge {
     top: calc(0px - var(--popover-space-away));
     width: 100%;
     height: var(--popover-space-away);
   }
 
-  :global([data-popper-placement^="left"]).popover .popover-hover-bridge {
+  :global([data-popper-placement^="left"]).svelte-easy-popover
+    .popover-hover-bridge {
     right: calc(0px - var(--popover-space-away));
     height: 100%;
     width: var(--popover-space-away);
   }
 
-  :global([data-popper-placement^="right"]).popover .popover-hover-bridge {
+  :global([data-popper-placement^="right"]).svelte-easy-popover
+    .popover-hover-bridge {
     left: calc(0px - var(--popover-space-away));
     height: 100%;
     width: var(--popover-space-away);

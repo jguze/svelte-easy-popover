@@ -36,11 +36,10 @@
    *
    * NOTE: If set, this completely overrides the values set by the `triggerEvents`.
    */
-  export let isOpen: boolean;
+  export let isOpen: boolean = undefined;
 
   /**
-   * The reference element to which we are placing the popover around. if no reference
-   * element is given, this will use the parent of this current component.
+   * The reference element to which we are placing the popover around.
    *
    * All modifiers, including `spaceAway` and `placement`, use this as the reference.
    *

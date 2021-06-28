@@ -294,7 +294,7 @@
   }
 
   $: {
-    if (isPopoverVisible && closeOnEscape && window) {
+    if (isPopoverVisible && closeOnEscape && globalThis.document) {
       document.addEventListener("keydown", escapeListener);
     } else {
       document.removeEventListener("keydown", escapeListener);
@@ -306,7 +306,7 @@
       isPopoverVisible &&
       closeOnClickAway &&
       triggerEventSet.has("click") &&
-      window
+      globalThis.document
     ) {
       document.addEventListener("click", closeOnClickAwayListener);
     } else {

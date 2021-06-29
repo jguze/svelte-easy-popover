@@ -73,7 +73,7 @@ Use the popover as a dropdown!
     {referenceElement}
     on:change={({ detail: { isOpen } }) => (isPopoverOpen = isOpen)}
   >
-    <ul class="popover-contents" transition:fade={{ duration: 250 }}>
+    <ul class="popover-contents" transition:fade={{ duration: 0 }}>
       <li><a href="https://example.com">Menu Option 1</a></li>
       <li><a href="https://example.com">Menu Option 2</a></li>
       <li><a href="https://example.com">Menu Option 3</a></li>

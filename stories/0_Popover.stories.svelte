@@ -4,7 +4,6 @@
   import { fade } from "svelte/transition";
 
   let referenceElement;
-
 </script>
 
 <Meta
@@ -140,5 +139,4 @@
     gap: 8px;
     flex-flow: column;
   }
-
 </style>

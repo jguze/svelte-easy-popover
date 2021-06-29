@@ -105,8 +105,8 @@
    */
   export let handleContextMenuForHover: boolean = false;
 
-  /** Amount of time to wait before the unhover closes the menu */
-  export let unhoverDelay: number = 50;
+  /** Amount of time to wait before the an action closes the menu */
+  export let closeDelay: number = 50;
 
   /**
    * The placement of the popover with respect to the reference element.
@@ -381,16 +381,20 @@
       if (!isPopoverHovered) {
         isPopoverFocused = false;
       }
-    }, unhoverDelay);
+    }, closeDelay);
   }
 
+  let referenceBlurTimer: ReturnType<typeof setTimeout>;
   function onReferenceFocus() {
     isReferenceFocused = true;
+    clearTimeout(referenceBlurTimer);
   }
 
   function onReferenceBlur() {
-    isReferenceFocused = false;
-    forceCloseIfClickedIn();
+    referenceBlurTimer = setTimeout(() => {
+      isReferenceFocused = false;
+      forceCloseIfClickedIn();
+    }, closeDelay);
   }
 
   let popoverUnhoverTimer: ReturnType<typeof setTimeout>;
@@ -414,16 +418,21 @@
         isPopoverFocused = false;
       }
       forceCloseIfClickedIn();
-    }, unhoverDelay);
+    }, closeDelay);
   }
 
+  let popoverBlurTimer: ReturnType<typeof setTimeout>;
   function onPopoverFocus() {
     isPopoverFocused = true;
+
+    clearTimeout(popoverBlurTimer);
   }
 
   function onPopoverBlur() {
-    isPopoverFocused = false;
-    forceCloseIfClickedIn();
+    popoverBlurTimer = setTimeout(() => {
+      isPopoverFocused = false;
+      forceCloseIfClickedIn();
+    }, closeDelay);
   }
 
   function onPopoverContextMenu() {

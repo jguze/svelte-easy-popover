@@ -305,11 +305,7 @@
 
   $: {
     if (globalThis.document) {
-      if (
-        isPopoverVisible &&
-        closeOnClickAway &&
-        triggerEventSet.has("click")
-      ) {
+      if (isPopoverVisible && closeOnClickAway) {
         document.addEventListener("click", closeOnClickAwayListener);
       } else {
         document.removeEventListener("click", closeOnClickAwayListener);

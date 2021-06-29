@@ -294,23 +294,26 @@
   }
 
   $: {
-    if (isPopoverVisible && closeOnEscape && globalThis.document) {
-      document.addEventListener("keydown", escapeListener);
-    } else {
-      document.removeEventListener("keydown", escapeListener);
+    if (globalThis.document) {
+      if (isPopoverVisible && closeOnEscape) {
+        document.addEventListener("keydown", escapeListener);
+      } else {
+        document.removeEventListener("keydown", escapeListener);
+      }
     }
   }
 
   $: {
-    if (
-      isPopoverVisible &&
-      closeOnClickAway &&
-      triggerEventSet.has("click") &&
-      globalThis.document
-    ) {
-      document.addEventListener("click", closeOnClickAwayListener);
-    } else {
-      document.removeEventListener("click", closeOnClickAwayListener);
+    if (globalThis.document) {
+      if (
+        isPopoverVisible &&
+        closeOnClickAway &&
+        triggerEventSet.has("click")
+      ) {
+        document.addEventListener("click", closeOnClickAwayListener);
+      } else {
+        document.removeEventListener("click", closeOnClickAwayListener);
+      }
     }
   }
 

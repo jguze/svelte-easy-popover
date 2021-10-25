@@ -314,17 +314,23 @@
   }
 
   $: getOptions = function () {
+    let modifiers = [
+      {
+        name: "offset",
+        options: {
+          offset: [spaceAlong, spaceAway],
+        },
+      },
+    ];
+
+    if (popperOptions?.modifiers) {
+      modifiers = modifiers.concat(popperOptions.modifiers as []);
+    }
+
     return {
       ...popperOptions,
       placement,
-      modifiers: [
-        {
-          name: "offset",
-          options: {
-            offset: [spaceAlong, spaceAway],
-          },
-        },
-      ],
+      modifiers,
     };
   };
 

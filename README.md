@@ -74,7 +74,7 @@ state if so desired.
 
 <button bind:this={referenceElement}>Popover is {isPopoverOpen ? "Opened" : "Closed"}</button>
 <Popover
-  triggerEvents={["hover, focus"]}
+  triggerEvents={["hover", "focus"]}
   {referenceElement}
   placement="top"
   spaceAway={10}

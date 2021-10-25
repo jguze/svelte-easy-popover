@@ -135,8 +135,12 @@
    */
   export let popperOptions: Parameters<typeof createPopper>[2] = {};
 
+  /**
+   * An instance of popper
+   */
+  export let popperInstance: ReturnType<typeof createPopper>;
+
   let popoverElement: HTMLElement;
-  let popperInstance: ReturnType<typeof createPopper>;
 
   let isPopoverVisible: boolean = false;
   let isPopoverHovered: boolean = false;

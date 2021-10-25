@@ -1,6 +1,6 @@
 {
   "name": "svelte-easy-popover",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "svelte": "dist/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.umd.js",

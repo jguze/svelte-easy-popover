@@ -31,7 +31,7 @@ This is an example of an easy popover with a transition, placed above the button
 
 <button bind:this={referenceElement}>Open popover</button>
 <Popover
-  triggerEvents={["hover, focus"]}
+  triggerEvents={["hover", "focus"]}
   {referenceElement}
   placement="top"
   spaceAway={10}

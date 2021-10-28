@@ -138,7 +138,8 @@
   /**
    * An instance of popper
    */
-  export let popperInstance: ReturnType<typeof createPopper>;
+  export let popperInstance: ReturnType<typeof createPopper> | undefined =
+    undefined;
 
   let popoverElement: HTMLElement;
 

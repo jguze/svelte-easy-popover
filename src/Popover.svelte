@@ -475,6 +475,10 @@
   .popover-hover-bridge {
     position: absolute;
   }
+  
+  .svelte-easy-popover {
+    z-index: var(--z-index, 1);
+  }
 
   :global([data-popper-placement^="top"]).svelte-easy-popover
     .popover-hover-bridge {

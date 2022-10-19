@@ -1,21 +1,4 @@
 <script lang="ts" context="module">
-  export type PopoverPlacementOptions =
-    | "auto"
-    | "auto-start"
-    | "auto-end"
-    | "top"
-    | "top-start"
-    | "top-end"
-    | "bottom"
-    | "bottom-start"
-    | "bottom-end"
-    | "right"
-    | "right-start"
-    | "right-end"
-    | "left"
-    | "left-start"
-    | "left-end";
-
   export type PopoverTriggerEvent = "hover" | "click" | "focus";
 
   export interface PopoverChangeDetail {
@@ -24,10 +7,21 @@
 </script>
 
 <script lang="ts">
-  // Popper requires you do replace the process.env.NODE_ENV variable. I think this is
-  // unnecessary to handle: https://github.com/popperjs/popper-core/issues/933
-  import { createPopper } from "@popperjs/core/dist/esm/popper";
+  import type {
+    Placement,
+    Middleware,
+    ComputePositionReturn,
+  } from "@floating-ui/dom";
   import { createEventDispatcher, onDestroy } from "svelte";
+  import { computePosition, shift, offset } from "@floating-ui/dom";
+
+  /** id for popover element */
+  export let id: string | undefined = undefined;
+
+  /** role for popover element
+   *  @default 'region'
+   */
+  export let role: string | undefined = "region";
 
   /**
    * This gives you the ability to manually control when to open and close the popover.
@@ -109,39 +103,27 @@
   export let closeDelay: number = 50;
 
   /**
-   * The placement of the popover with respect to the reference element.
-   * This uses the Popper `placement` option, which is documented
-   * [here](https://popper.js.org/docs/v2/constructors//#placement)
-   */
-  export let placement: PopoverPlacementOptions = "bottom";
-
-  /**
    * This spaces the popover element away from the reference element in pixels.
-   * This uses the Popper `distance` property in the `offset` modifier, which
-   * is documented [here](https://popper.js.org/docs/v2/modifiers/offset/#offset-1)
+   * This uses the floating-ui offset Middleware which
+   * is documented [here](https://floating-ui.com/docs/offset)
+   * this prop has no effect if the middleware prop is overriden
    */
-  export let spaceAway: number = 0;
+  export let spaceAway: number = 6;
 
   /**
-   * This spaces the popover element along the reference element in pixels.
-   * This uses the Popper `skid` property in the `offset` modifier, which
-   * is documented [here](https://popper.js.org/docs/v2/modifiers/offset/#offset-1)
+   * The placement of the popover with respect to the reference element.
+   * This uses the floating-ui `placement` option, which is documented
+   * [here](https://floating-ui.com/docs/computePosition#placement)
    */
-  export let spaceAlong: number = 0;
+  export let placement: Placement = "bottom";
 
-  /**
-   * For more customizability, you may pass any options to the Popper instance to
-   * customize the Popover. To see all Popper options, see the documentation [here](https://popper.js.org/docs/v2/constructors/#options)
-   */
-  export let popperOptions: Parameters<typeof createPopper>[2] = {};
+  /** Middleware are plain objects floating-ui uses that modifies the positioning coordinates in some fashion, or provide useful data for the consumer to use
+   * documented [here](https://floating-ui.com/docs/middleware)
+   * @default [shift(), offset(spaceAway)]
+  */
+  export let middleware: Array<Middleware> = [shift(), offset(spaceAway)];
 
-  /**
-   * An instance of popper
-   */
-  export let popperInstance: ReturnType<typeof createPopper> | undefined =
-    undefined;
-
-  let popoverElement: HTMLElement;
+  export let popoverElement: HTMLElement = undefined;
 
   let isPopoverVisible: boolean = false;
   let isPopoverHovered: boolean = false;
@@ -201,19 +183,10 @@
     removeListeners();
   }
 
-  $: {
-    if (isPopoverVisible && popoverElement && referenceElement) {
+  $: if (isPopoverVisible && popoverElement && referenceElement) {
       // Destroy the old instance if it exists
-      destroyInstance();
-      createInstance();
+      createInstance(placement, middleware, referenceElement);
     }
-  }
-
-  $: {
-    if (popperInstance) {
-      popperInstance.setOptions(getOptions());
-    }
-  }
 
   $: {
     if (triggerEventSet.size > 0 && referenceElement) {
@@ -251,26 +224,23 @@
     }
   }
 
-  function addListener(
-    element: Element,
-    event: string,
-    fn: EventListenerOrEventListenerObject
-  ) {
+  function addListener(element: Element, event: string, fn: EventListenerOrEventListenerObject) {
     element.addEventListener(event, fn);
     listeners.push({ element, event, fn });
   }
 
-  function destroyInstance() {
-    popperInstance?.destroy();
-    popperInstance = null;
+  function createInstance(placement: Placement, middleware: Middleware[], referenceElement: Element) {
+    computePosition(referenceElement, popoverElement, {
+      placement,
+      middleware,
+    }).then((params: ComputePositionReturn) => computePositionReturn(params));
   }
 
-  function createInstance() {
-    popperInstance = createPopper(
-      referenceElement,
-      popoverElement,
-      getOptions()
-    );
+  export function computePositionReturn(params: ComputePositionReturn) {
+    Object.assign(popoverElement.style, {
+      left: `${params.x}px`,
+      top: `${params.y}px`,
+    });
   }
 
   function escapeListener(e: KeyboardEvent) {
@@ -299,7 +269,7 @@
   }
 
   $: {
-    if (globalThis.document) {
+    if (window?.document) {
       if (isPopoverVisible && closeOnEscape) {
         document.addEventListener("keydown", escapeListener);
       } else {
@@ -309,7 +279,7 @@
   }
 
   $: {
-    if (globalThis.document) {
+    if (window?.document) {
       if (isPopoverVisible && closeOnClickAway) {
         document.addEventListener("click", closeOnClickAwayListener);
       } else {
@@ -317,27 +287,6 @@
       }
     }
   }
-
-  $: getOptions = function () {
-    let modifiers = [
-      {
-        name: "offset",
-        options: {
-          offset: [spaceAlong, spaceAway],
-        },
-      },
-    ];
-
-    if (popperOptions?.modifiers) {
-      modifiers = modifiers.concat(popperOptions.modifiers as []);
-    }
-
-    return {
-      ...popperOptions,
-      placement,
-      modifiers,
-    };
-  };
 
   function forceClose() {
     isReferenceClicked = false;
@@ -392,6 +341,7 @@
   }
 
   let referenceBlurTimer: ReturnType<typeof setTimeout>;
+
   function onReferenceFocus() {
     isReferenceFocused = true;
     clearTimeout(referenceBlurTimer);
@@ -454,57 +404,19 @@
   }
 
   onDestroy(() => {
-    destroyInstance();
     removeListeners();
   });
 </script>
 
 {#if isPopoverVisible}
-  <div class="svelte-easy-popover" bind:this={popoverElement}>
-    {#if triggerEventSet.has("hover") && spaceAway > 0}
-      <div
-        class="popover-hover-bridge"
-        style={`--popover-space-away: ${spaceAway}px;`}
-      />
-    {/if}
+  <div {id} {role} class="svelte-easy-popover" bind:this={popoverElement}>
     <slot />
   </div>
 {/if}
 
 <style>
-  .popover-hover-bridge {
-    position: absolute;
-  }
-  
   .svelte-easy-popover {
+    position: absolute;
     z-index: var(--z-index, 1);
-  }
-
-  :global([data-popper-placement^="top"]).svelte-easy-popover
-    .popover-hover-bridge {
-    bottom: calc(0px - var(--popover-space-away));
-    width: 100%;
-    height: var(--popover-space-away);
-  }
-
-  :global([data-popper-placement^="bottom"]).svelte-easy-popover
-    .popover-hover-bridge {
-    top: calc(0px - var(--popover-space-away));
-    width: 100%;
-    height: var(--popover-space-away);
-  }
-
-  :global([data-popper-placement^="left"]).svelte-easy-popover
-    .popover-hover-bridge {
-    right: calc(0px - var(--popover-space-away));
-    height: 100%;
-    width: var(--popover-space-away);
-  }
-
-  :global([data-popper-placement^="right"]).svelte-easy-popover
-    .popover-hover-bridge {
-    left: calc(0px - var(--popover-space-away));
-    height: 100%;
-    width: var(--popover-space-away);
   }
 </style>

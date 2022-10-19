@@ -55,9 +55,9 @@ This is an example of an easy popover with a transition, placed above the button
 
 View the [argument documentation](?path=/docs/examples-popover--tooltip-style-appearing-above-the-reference-element) to view more detailed information on how to use the component, or view the [examples](?path=/story/examples-popover--tooltip-style-appearing-above-the-reference-element) for different ways to use it.
 
-## Popper
+## Floating UI
 
-Underneath, this component is using [Popper](https://popper.js.org/). Please read their documentation for more details, but in general you shouldn't require knowing anything about Popper to get started.
+Underneath, this component is using [Floating UI](https://floating-ui.com/docs/getting-started). Please read their documentation for more details, but in general you shouldn't require knowing anything about Floating UI to get started.
 
 ## Listening for state changes
 

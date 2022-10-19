@@ -55,7 +55,7 @@
     "svelte",
     "svelte3",
     "popover",
-    "popperjs",
+    "floating-ui",
     "sveltejs"
   ],
   "files": [
@@ -63,6 +63,6 @@
     "src"
   ],
   "dependencies": {
-    "@popperjs/core": "^2.9.2"
+    "@floating-ui/dom": "^1.0.2"
   }
 }
